@@ -17,10 +17,10 @@ namespace PCGExDataHelpers
 		const FPCGMetadataAttribute<T>* Attr = Attribute;
 		if (!Attr->GetNumberOfEntries())
 		{
-			const FPCGMetadataAttribute<T>* Parent = Attr->GetParent();
+			const FPCGMetadataAttribute<T>* Parent = static_cast<const FPCGMetadataAttribute<T>*>(Attr->GetParent());
 			while (Parent)
 			{
-				if (!Parent->GetNumberOfEntries()) { Parent = Parent->GetParent(); }
+				if (!Parent->GetNumberOfEntries()) { Parent = static_cast<const FPCGMetadataAttribute<T>*>(Parent->GetParent()); }
 				else
 				{
 					Attr = Parent;
