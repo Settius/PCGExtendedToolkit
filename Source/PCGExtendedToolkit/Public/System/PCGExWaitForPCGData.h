@@ -184,7 +184,7 @@ public:
 #endif
 
 	UPROPERTY()
-	TArray<FPCGPinProperties> PCGExCachedPinProperties;
+	TArray<FPCGPinProperties> CachedTargetGraphPins;
 };
 
 struct FPCGExWaitForPCGDataContext final : FPCGExPointsProcessorContext

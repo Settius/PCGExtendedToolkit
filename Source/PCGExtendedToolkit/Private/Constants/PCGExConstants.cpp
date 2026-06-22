@@ -9,10 +9,56 @@
 #include "Data/PCGExDataHelpers.h"
 #include "Elements/Metadata/PCGMetadataElementCommon.h"
 
+namespace
+{
+	const UEnum* GetPCGExConstantListEnum()
+	{
+		return FindObject<UEnum>(nullptr, TEXT("/Script/PCGExtendedToolkit.EPCGExConstantListID"));
+	}
+
+	TArray<FPCGPreConfiguredSettingsInfo> GetPCGExConstantListPreconfiguredInfo()
+	{
+		const TSet ValuesToSkip = {EPCGExConstantListID::MAX_BOOL, EPCGExConstantListID::ADDITIONAL_VECTORS, EPCGExConstantListID::ADDITIONAL_NUMERICS};
+
+		TArray<FPCGPreConfiguredSettingsInfo> PreconfiguredInfo;
+		const UEnum* EnumPtr = GetPCGExConstantListEnum();
+		if (!EnumPtr)
+		{
+			return PreconfiguredInfo;
+		}
+
+		PreconfiguredInfo.Reserve(EnumPtr->NumEnums());
+		for (int32 Index = 0; Index < EnumPtr->NumEnums(); ++Index)
+		{
+#if WITH_EDITOR
+			if (EnumPtr->HasMetaData(TEXT("Hidden"), Index))
+			{
+				continue;
+			}
+#endif
+
+			const int64 Value = EnumPtr->GetValueByIndex(Index);
+			if (Value == EnumPtr->GetMaxEnumValue() ||
+				ValuesToSkip.Contains(static_cast<EPCGExConstantListID>(Value)))
+			{
+				continue;
+			}
+
+			FText DisplayName = EnumPtr->GetDisplayNameTextByValue(Value);
+			if (!DisplayName.IsEmpty())
+			{
+				PreconfiguredInfo.Emplace(static_cast<int32>(Value), MoveTemp(DisplayName));
+			}
+		}
+
+		return PreconfiguredInfo;
+	}
+}
+
 #if WITH_EDITOR
 FName UPCGExConstantsSettings::GetEnumName() const
 {
-	if (const UEnum* EnumPtr = StaticEnum<EPCGExConstantListID>())
+	if (const UEnum* EnumPtr = GetPCGExConstantListEnum())
 	{
 		return FName(EnumPtr->GetDisplayNameTextByValue(static_cast<int64>(ConstantList)).ToString());
 	}
@@ -21,15 +67,13 @@ FName UPCGExConstantsSettings::GetEnumName() const
 
 TArray<FPCGPreConfiguredSettingsInfo> UPCGExConstantsSettings::GetPreconfiguredInfo() const
 {
-	const TSet ValuesToSkip = {EPCGExConstantListID::MAX_BOOL, EPCGExConstantListID::ADDITIONAL_VECTORS, EPCGExConstantListID::ADDITIONAL_NUMERICS};
-
-	return FPCGPreConfiguredSettingsInfo::PopulateFromEnum<EPCGExConstantListID>(ValuesToSkip);
+	return GetPCGExConstantListPreconfiguredInfo();
 }
 #endif
 
 void UPCGExConstantsSettings::ApplyPreconfiguredSettings(const FPCGPreConfiguredSettingsInfo& PreconfigureInfo)
 {
-	if (const UEnum* EnumPtr = StaticEnum<EPCGExConstantListID>())
+	if (const UEnum* EnumPtr = GetPCGExConstantListEnum())
 	{
 		if (EnumPtr->IsValidEnumValue(PreconfigureInfo.PreconfiguredIndex))
 		{
