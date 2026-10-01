@@ -182,8 +182,6 @@ public:
 	void EDITOR_RefreshPins();
 #endif
 
-	UPROPERTY()
-	TArray<FPCGPinProperties> CachedPins;
 };
 
 struct FPCGExWaitForPCGDataContext final : FPCGExPointsProcessorContext
