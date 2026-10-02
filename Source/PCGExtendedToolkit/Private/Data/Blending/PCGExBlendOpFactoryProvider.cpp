@@ -422,13 +422,13 @@ EPCGMetadataTypes UPCGExBlendOpFactoryProviderSettings::GetPinDefaultValueType(F
 	return GetPinInitialDefaultValueType(PinLabel);
 }
 
+#if WITH_EDITOR
 bool UPCGExBlendOpFactoryProviderSettings::IsPinDefaultValueMetadataTypeValid(FName PinLabel, EPCGMetadataTypes DataType) const
 {
 	// We support any value type so whatever
 	return true;
 }
 
-#if WITH_EDITOR
 void UPCGExBlendOpFactoryProviderSettings::SetPinDefaultValue(FName PinLabel, const FString& DefaultValue, bool bCreateIfNeeded)
 {
 	Modify();

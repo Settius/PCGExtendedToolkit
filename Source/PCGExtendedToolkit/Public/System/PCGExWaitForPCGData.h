@@ -48,6 +48,7 @@ public:
 	UPCGExWaitForPCGDataSettings(const FObjectInitializer& ObjectInitializer);
 
 	//~Begin UObject interface
+	virtual void PostLoad() override;
 #if WITH_EDITOR
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -183,7 +184,7 @@ public:
 #endif
 
 	UPROPERTY()
-	TArray<FPCGPinProperties> CachedPins;
+	TArray<FPCGPinProperties> CachedTargetGraphPins;
 };
 
 struct FPCGExWaitForPCGDataContext final : FPCGExPointsProcessorContext

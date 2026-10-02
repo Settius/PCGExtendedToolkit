@@ -27,6 +27,17 @@ UPCGExWaitForPCGDataSettings::UPCGExWaitForPCGDataSettings(const FObjectInitiali
 {
 }
 
+void UPCGExWaitForPCGDataSettings::PostLoad()
+{
+	// Populate derived settings before the base caches its settings CRC.
+	if (CachedTargetGraphPins.IsEmpty() && TemplateGraph.ToSoftObjectPath().IsValid())
+	{
+		GetTargetGraphPins(CachedTargetGraphPins);
+	}
+
+	Super::PostLoad();
+}
+
 #if WITH_EDITOR
 void UPCGExWaitForPCGDataSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -55,7 +66,7 @@ TArray<FPCGPinProperties> UPCGExWaitForPCGDataSettings::OutputPinProperties() co
 
 	if (bOutputRoaming) { PCGEX_PIN_ANY(RoamingPin, "Roaming data that isn't part of the template output but still exists.", Normal) }
 
-	PinProperties.Append(CachedPins);
+	PinProperties.Append(CachedTargetGraphPins);
 
 	return PinProperties;
 }
@@ -65,7 +76,7 @@ void UPCGExWaitForPCGDataSettings::EDITOR_RefreshPins()
 {
 	Modify(true);
 
-	GetTargetGraphPins(CachedPins); // Force-refresh cached pins
+	GetTargetGraphPins(CachedTargetGraphPins); // Force-refresh cached pins
 
 	FPropertyChangedEvent EmptyEvent(nullptr);
 	PostEditChangeProperty(EmptyEvent);
@@ -131,7 +142,7 @@ bool FPCGExWaitForPCGDataElement::Boot(FPCGExContext* InContext) const
 	PCGEX_VALIDATE_NAME_CONSUMABLE(Settings->ActorReferenceAttribute)
 	if (Settings->TemplateInput == EPCGExDataInputValueType::Attribute) { PCGEX_VALIDATE_NAME(Settings->TemplateGraphAttributeName) }
 
-	for (FPCGPinProperties Pin : Settings->CachedPins)
+	for (FPCGPinProperties Pin : Settings->CachedTargetGraphPins)
 	{
 		Context->AllLabels.Add(Pin.Label);
 
