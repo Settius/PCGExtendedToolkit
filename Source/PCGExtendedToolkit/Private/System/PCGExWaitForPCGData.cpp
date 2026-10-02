@@ -29,13 +29,13 @@ UPCGExWaitForPCGDataSettings::UPCGExWaitForPCGDataSettings(const FObjectInitiali
 
 void UPCGExWaitForPCGDataSettings::PostLoad()
 {
-	Super::PostLoad();
-
+	// Populate derived settings before the base caches its settings CRC.
 	if (PCGExCachedPinProperties.IsEmpty() && TemplateGraph.ToSoftObjectPath().IsValid())
 	{
 		GetTargetGraphPins(PCGExCachedPinProperties);
-		GetSettingsCrc();
 	}
+
+	Super::PostLoad();
 }
 
 #if WITH_EDITOR
